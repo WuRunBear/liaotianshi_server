@@ -26,6 +26,32 @@ const {
 const {
   SESSION_SECRET_KEY
 } = require('./conf/secretKeys')
+const {
+  url
+} = require('./conf/url')
+
+// socket和cors跨域
+const
+  IO = require('koa-socket-2'),
+  koaRedis = require('socket.io-redis'),
+  chat = new IO(),
+  cors = require('koa2-cors')
+  
+// cors跨域
+app.use(cors({
+  origin: `${url}:8080`,
+  credentials: true,
+  maxAge: 24 * 60 * 60 * 1000
+}))
+
+// socket
+chat.attach(app)
+
+app.io.adapter(koaRedis({
+  key: 'mychat.io',
+  host: REDIS_CONF.host,
+  port: REDIS_CONF.port
+}));
 
 // error handler
 onerror(app)

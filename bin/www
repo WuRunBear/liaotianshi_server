@@ -19,15 +19,22 @@ var port = normalizePort(process.env.PORT || '8081');
  * Create HTTP server.
  */
 
-var server = http.createServer(app.callback());
-
+ app.listen(port)
+// var server = http.createServer(app.callback());
+// var io = require("socket.io")(server)
+// const redisAdapter = require('socket.io-redis');
+// io.adapter(redisAdapter({
+//   host: '127.0.0.1',
+//   port: 6379
+// }));
 /**
  * Listen on provided port, on all network interfaces.
  */
-
-server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
+// server.listen(port);
+// server.on('error', onError);
+// server.on('listening', onListening);
+app.server.on('error', onError);
+app.server.on('listening', onListening);
 
 /**
  * Normalize a port into a number, string, or false.
@@ -58,9 +65,9 @@ function onError(error) {
     throw error;
   }
 
-  var bind = typeof port === 'string'
-    ? 'Pipe ' + port
-    : 'Port ' + port;
+  var bind = typeof port === 'string' ?
+    'Pipe ' + port :
+    'Port ' + port;
 
   // handle specific listen errors with friendly messages
   switch (error.code) {
@@ -82,9 +89,10 @@ function onError(error) {
  */
 
 function onListening() {
-  var addr = server.address();
-  var bind = typeof addr === 'string'
-    ? 'pipe ' + addr
-    : 'port ' + addr.port;
+  // var addr = server.address();
+  var addr = app.server.address();
+  var bind = typeof addr === 'string' ?
+    'pipe ' + addr :
+    'port ' + addr.port;
   debug('Listening on ' + bind);
 }

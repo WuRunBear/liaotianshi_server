@@ -22,7 +22,7 @@ if (env === 'dev') {
   // redis配置
   REDIS_CONF = {
     port: 6379,
-    host: '192.168.3.18'
+    host: 'localhost'
   }
 }
 
@@ -39,7 +39,7 @@ if (env === 'pro') {
   // redis配置
   REDIS_CONF = {
     port: 6379,
-    host: '192.168.3.18'
+    host: 'localhost'
   }
 }
 
