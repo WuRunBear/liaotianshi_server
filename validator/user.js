@@ -24,7 +24,6 @@ let schema = {
     },
     avatar: {
       type: 'string',
-      pattern: '^$|[a-zA-z]+://[^\s]*',
       maxLength: 255,
       minLength: 0
     },

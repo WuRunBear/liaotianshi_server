@@ -6,7 +6,7 @@ const url = `http://${ip}`
 
 module.exports = {
   url,
-  urlStaticResource: `${url}:8081/public/`,
-  urlUploadResource: `${url}:8081/public/upload/`,
+  urlStaticResource: `${url}:8081/`,
+  urlUploadResource: `${url}:8081/upload/`,
   urlApi: `${url}:8081/api/`
 }

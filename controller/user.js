@@ -125,7 +125,7 @@ async function selectUser(ctx, {
   let isexist = await isExist(selectText)
   let isUserName = isexist.errno === 0
 
-  if(ctx.session.userInfo.UserName === selectText) return new SuccessModel(selectUserThisFailInfo)
+  if (ctx.session.userInfo.UserName === selectText) return new SuccessModel(selectUserThisFailInfo)
 
   switch (selectMode) {
     case 1:
@@ -199,20 +199,28 @@ async function changeUserInfo(ctx, {
   avatar,
   city
 }) {
-  
-  let res = await updateUser({
-    userId: ctx.session.userInfo.id,
+  let data = {
     nickName,
     gender,
     avatar,
     city
-  })
+  }
+  let res = await updateUser(Object.assign({
+    userId: ctx.session.userInfo.id,
+  }, data))
 
   if (res) {
-    if (nickName) ctx.session.userInfo.nickName = nickName
-    if (avatar) ctx.session.userInfo.avatar = avatar
-    if (gender) ctx.session.userInfo.gender = gender
-    if (city) ctx.session.userInfo.city = city
+    for (const key in res) {
+      if (res.hasOwnProperty(key)) {
+        const element = res[key];
+        if (element && data[key]) ctx.session.userInfo[key] = element
+      }
+    }
+
+    // if (nickName) ctx.session.userInfo.nickName = res.nickName
+    // if (avatar) ctx.session.userInfo.avatar = res.avatar
+    // if (gender) ctx.session.userInfo.gender = res.gender
+    // if (city) ctx.session.userInfo.city = res.city
 
     return new SuccessModel()
   }

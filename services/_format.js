@@ -12,7 +12,11 @@ const {
 function _formatUserAvatar(obj) {
   if (!obj.avatar) {
     obj.avatar = `${urlStaticResource}images/avatar.png`
+  }else{
+    obj.avatar = `${urlStaticResource}${obj.avatar}`
   }
+  console.log(urlStaticResource );
+  
   return obj
 }
 

@@ -137,7 +137,16 @@ async function updateUser({
     where
   })
 
-  return result
+  if (result) {
+    
+    return formatUser({
+      nickName,
+      password,
+      avatar,
+      gender,
+      city
+    })
+  }
 }
 
 /**

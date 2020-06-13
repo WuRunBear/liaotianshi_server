@@ -30,14 +30,8 @@ const {
   url
 } = require('./conf/url')
 
-// socket和cors跨域
-const
-  IO = require('koa-socket-2'),
-  koaRedis = require('socket.io-redis'),
-  chat = new IO(),
-  cors = require('koa2-cors')
-  
 // cors跨域
+const cors = require('koa2-cors')
 app.use(cors({
   origin: `${url}:8080`,
   credentials: true,
@@ -45,12 +39,17 @@ app.use(cors({
 }))
 
 // socket
-chat.attach(app)
+const
+  IO = require('koa-socket-2'),
+  koaRedis = require('socket.io-redis'),
+  chat = new IO()
 
+// socket
+chat.attach(app)
 app.io.adapter(koaRedis({
   key: 'mychat.io',
   host: REDIS_CONF.host,
-  port: REDIS_CONF.port
+  port: REDIS_CONF.port,
 }));
 
 // error handler
@@ -58,7 +57,7 @@ onerror(app)
 
 app.use(koaBody({
   multipart: true,
-  // encoding:'gzip',
+  // encoding: 'gzip',
   formidable: {
     uploadDir: path.join(__dirname, 'public/upload/'),
     keepExtensions: true, // 保持文件的后缀
@@ -89,7 +88,7 @@ app.use(koaBody({
 // }))
 app.use(json())
 app.use(logger())
-
+app.use(require('koa-static')(__dirname + '/public'))
 app.use(views(__dirname + '/views', {
   extension: 'ejs'
 }))

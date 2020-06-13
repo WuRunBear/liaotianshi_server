@@ -28,7 +28,8 @@ async function upload(ctx) {
 
   if (JSON.stringify(files) !== '{}') {
     res = new SuccessModel({
-      name: `${urlUploadResource}${name}`,
+      name: `upload/${name}`,
+      path: `${urlUploadResource}${name}`,
       size,
       type
     })

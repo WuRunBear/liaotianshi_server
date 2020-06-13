@@ -15,6 +15,16 @@ seq.sync({
     nickName: 'Admin',
     password: doCrypto('123456'),
   })
+  await user.create({
+    userName: 'test1',
+    nickName: 'test1',
+    password: doCrypto('123456'),
+  })
+  await user.create({
+    userName: 'test2',
+    nickName: 'test2',
+    password: doCrypto('123456'),
+  })
 
   process.exit()
 })
