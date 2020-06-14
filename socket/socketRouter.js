@@ -9,12 +9,13 @@ function noop(ctx, data) {
  */
 module.exports = function (io, routes) {
   Object.keys(routes).forEach((route) => {
-    io.on(route, noop); // register event
+    io.on(route, routes[route]); // register event
   });
   return async (ctx, next) => {
     if (routes[ctx.event]) {
+// console.log(ctx);
 
-      await routes[ctx.event](ctx,routerData || ctx.data); //call event funciton
+      // await routes[ctx.event](ctx,routerData || ctx.data); //call event funciton
     }
     await next();
   };

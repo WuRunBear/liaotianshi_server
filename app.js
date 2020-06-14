@@ -38,20 +38,6 @@ app.use(cors({
   maxAge: 24 * 60 * 60 * 1000
 }))
 
-// socket
-const
-  IO = require('koa-socket-2'),
-  koaRedis = require('socket.io-redis'),
-  chat = new IO()
-
-// socket
-chat.attach(app)
-app.io.adapter(koaRedis({
-  key: 'mychat.io',
-  host: REDIS_CONF.host,
-  port: REDIS_CONF.port,
-}));
-
 // error handler
 onerror(app)
 
@@ -109,6 +95,24 @@ app.use(session({
     all: `${REDIS_CONF.host}:${REDIS_CONF.port}`
   })
 }))
+
+// socket
+const
+  IO = require('koa-socket-2'),
+  koaRedis = require('socket.io-redis'),
+  chat = new IO()
+
+// socket
+chat.attach(app)
+app.io.adapter(koaRedis({
+  key: 'mychat.io',
+  host: REDIS_CONF.host,
+  port: REDIS_CONF.port,
+}));
+
+// socket的路由
+// require('./socket/socketRouter')(app.io, Object.assign({}, require('./socket/router/SocketRouters')))
+app.io.use(require('./socket/socketRouter')(app.io, Object.assign({}, require('./socket/router/SocketRouters'))))
 
 // routes
 app.use(utils.routes(), utils.allowedMethods())

@@ -79,6 +79,9 @@ router.get('/logout', loginCheck, async (ctx, next) => {
 })
 
 // 验证用户是否已经登录
-router.get('/isLogin', loginCheck)
+router.get('/isLogin', loginCheck,function(ctx,next){
+  
+// console.log(ctx);
+})
 
 module.exports = router
