@@ -1,6 +1,7 @@
 // 用户表模型
 const {
   user,
+  friend
 } = require('../db/model/index')
 const {
   formatUser
@@ -9,10 +10,15 @@ const Op = require('sequelize').Op
 
 /**
  * 获取用户信息
+ * @param {Number} userId 用户id
  * @param {String} userName 用户名
  * @param {String} password 密码
  */
-async function getUserInfo(userName, password) {
+async function getUserInfo({
+  userId,
+  userName,
+  password
+}) {
   // 查询条件
   let where = {
     userName
@@ -24,11 +30,27 @@ async function getUserInfo(userName, password) {
       password
     })
   }
-  // 查询用户
-  let result = await user.findOne({
-    attributes: ['id', 'userName', 'nickName', 'avatar', 'gender'],
+
+  let info = {
+    attributes: ['id', 'userName', 'nickName', 'avatar', 'gender', 'city'],
     where
-  })
+  }
+
+  if (userId) {
+    Object.assign(info, {
+      include: [{
+        attributes: ['id', 'userId', 'friendId', 'alias', 'blackList'],
+        model: friend,
+        required: false,
+        where: {
+          userId
+        }
+      }],
+    })
+  }
+
+  // 查询用户
+  let result = await user.findOne(info)
 
   if (result) {
     return formatUser(result.dataValues)
@@ -138,7 +160,7 @@ async function updateUser({
   })
 
   if (result) {
-    
+
     return formatUser({
       nickName,
       password,

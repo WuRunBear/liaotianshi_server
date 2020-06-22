@@ -15,8 +15,6 @@ function _formatUserAvatar(obj) {
   }else{
     obj.avatar = `${urlStaticResource}${obj.avatar}`
   }
-  console.log(urlStaticResource );
-  
   return obj
 }
 

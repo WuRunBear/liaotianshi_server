@@ -11,11 +11,11 @@ friend.belongsTo(user, {
   foreignKey: 'friendId'
 })
 user.hasMany(friend, {
-  foreignKey: "userId"
-})
-user.hasMany(friend, {
   foreignKey: 'friendId'
 })
+// user.hasMany(friend, {
+//   foreignKey: "userId"
+// })
 // 用户表与聊天房间表的外键
 chatRoom.belongsTo(user, {
   foreignKey: 'userId'

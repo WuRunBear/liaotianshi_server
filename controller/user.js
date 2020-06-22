@@ -32,7 +32,10 @@ const {
  */
 async function login(ctx, userName, password) {
 
-  let res = await getUserInfo(userName, doCrypto(password))
+  let res = await getUserInfo({
+    userName,
+    password: doCrypto(password)
+  })
 
   if (!res) {
     return new ErrorModel(loginFailInfo)
@@ -99,7 +102,9 @@ async function register({
  * @param {String} userName 用户名
  */
 async function isExist(userName) {
-  let userInfo = await getUserInfo(userName)
+  let userInfo = await getUserInfo({
+    userName
+  })
 
   if (!userInfo) {
     return new SuccessModel()
@@ -125,8 +130,6 @@ async function selectUser(ctx, {
   let isexist = await isExist(selectText)
   let isUserName = isexist.errno === 0
 
-  if (ctx.session.userInfo.UserName === selectText) return new SuccessModel(selectUserThisFailInfo)
-
   switch (selectMode) {
     case 1:
       isUserName = false
@@ -142,15 +145,15 @@ async function selectUser(ctx, {
   if (!isUserName) {
 
     // 根据用户名查询
-    let usersInfo = await getUserInfo(selectText)
+    let usersInfo = await getUserInfo({
+      userId: ctx.session.userInfo.id,
+      userName: selectText
+    })
 
-    // // 验证是否为好友
-    // let resFriend = await isFriend(ctx, {friendId:usersInfo.id})
-    // if (!(resFriend instanceof ErrorModel)) {
-    //   Object.assign(usersInfo, {
-    //     friend: resFriend
-    //   })
-    // }
+    // 如果friends存在并且长度为1 则将数组形式转为对象形式
+    if (usersInfo.friends) {
+      usersInfo.friends = usersInfo.friends[0]
+    }
 
     if (usersInfo) {
       return new SuccessModel(usersInfo)
@@ -158,23 +161,12 @@ async function selectUser(ctx, {
 
   } else {
 
-    // 根据昵称查询 不验证是否为好友
+    // 根据昵称查询 
     let usersInfo = await getUsersInfo({
       nickName: selectText,
       limit: pageSize,
       offset: (page - 1) * pageSize,
     })
-
-    // for (let i = 0; i < usersInfo.rows.length; i++) {
-
-    //   usersInfo.rows[i] = {
-    //     id: usersInfo.rows[i].id,
-    //     userName: usersInfo.rows[i].userName,
-    //     nickName: usersInfo.rows[i].nickName,
-    //     avatar: usersInfo.rows[i].avatar,
-    //   }
-
-    // }
 
     if (usersInfo.count > 0) {
       return new SuccessModel(usersInfo)

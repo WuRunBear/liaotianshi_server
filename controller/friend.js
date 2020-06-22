@@ -1,4 +1,5 @@
 const {
+  getFriend,
   getFriends,
   createFriend
 } = require('../services/friend')
@@ -7,7 +8,8 @@ const {
   ErrorModel
 } = require('../model/ResModel')
 const {
-  isFriendFailInfo
+  isFriendFailInfo,
+  addFriendFailInfo
 } = require('../model/ErrorInfo')
 
 /**
@@ -18,11 +20,11 @@ const {
 async function isFriend(ctx, {
   friendId
 }) {
-  let res = await getFriends({
+  let res = await getFriend({
     userId: ctx.session.userInfo.id,
     friendId
   })
-  
+
   if (res) {
     return new SuccessModel(res)
   }
@@ -52,9 +54,23 @@ async function addFriend(ctx, {
   if (res) {
     return new SuccessModel(res)
   }
-  return
+  return new ErrorModel(addFriendFailInfo)
 }
+
+async function getFriendList(ctx){
+  let res = await getFriends({
+    userId: ctx.session.userInfo.id,
+  })
+
+  if (res) {
+    return new SuccessModel(res)
+  }
+
+  return new ErrorModel(isFriendFailInfo)
+}
+
 module.exports = {
   isFriend,
-  addFriend
+  addFriend,
+  getFriendList
 }

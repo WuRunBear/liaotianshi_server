@@ -46,5 +46,9 @@ module.exports = {
   selectUserThisFailInfo: {
     errno: 10010,
     message: '查询的是自己'
+  },
+  addFriendFailInfo: {
+    errno: 10011,
+    message: '添加好友失败'
   }
 }
