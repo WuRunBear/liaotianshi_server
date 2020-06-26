@@ -151,7 +151,7 @@ async function selectUser(ctx, {
     })
 
     // 如果friends存在并且长度为1 则将数组形式转为对象形式
-    if (usersInfo.friends) {
+    if (usersInfo.friends.length === 1) {
       usersInfo.friends = usersInfo.friends[0]
     }
 

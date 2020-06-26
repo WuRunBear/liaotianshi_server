@@ -50,5 +50,9 @@ module.exports = {
   addFriendFailInfo: {
     errno: 10011,
     message: '添加好友失败'
+  },
+  socketSendchatMegFailInfo: {
+    type: 10012,
+    message: '发送信息失败'
   }
 }

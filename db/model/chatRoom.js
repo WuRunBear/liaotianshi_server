@@ -18,7 +18,7 @@ let chatRoom = seq.define('chatRoom', {
   // 成员
   member: {
     type: Sequelize.STRING,
-    comment: '群名称'
+    comment: '成员'
   },
   // 群名称
   roomName: {

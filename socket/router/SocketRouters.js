@@ -2,14 +2,21 @@ const {
   SuccessModel,
   ErrorModel
 } = require('../../model/ResModel')
+const {
+  socketSendchatMegFailInfo
+} = require('../../model/ErrorInfo')
+const {
+  getSocketDatas,
+  createSocketData,
+  delSocketData,
+} = require('../../services/sendingSocket')
 
 module.exports = {
   async connect(socket) {},
-  async disconnect() {},
+  async disconnect(e) {},
   // 加入房间
   async addRoom(ctx, data = {}) {
     try {
-
       // 加入房间
       if (data.roomId) {
         let roomId = `roomId_${data.roomId}`
@@ -31,15 +38,25 @@ module.exports = {
   // 发送聊天消息
   async sendChatMsg(ctx, data = {}) {
     try {
-      if (data.friendId || data.roomId) {
-        let roomId = data.friendId ? `userId_${data.friendId}` : `roomId_${data.roomId}`
+      if (data.roomId) {
+        let roomId = `roomId_${data.roomId}`,
+          event = 'getChatMsg'
+
+        data.userId = ctx.userInfo.id
+
+        // 将数据添加到数据库中 因为不确定是不是发送成功
+        // let res = await createSocketData({
+        //   roomId,
+        //   data,
+        //   event
+        // })
 
         // 返回聊天消息给客户端
-        data.userId = ctx.userInfo.id
-        ctx.socket.broadcast.to(roomId).emit('getChatMsg', new SuccessModel(data));
-
+        ctx.socket.broadcast.to(roomId).emit(event, new SuccessModel(data));
         // 数据成功到达执行ctx.acknowledge函数
-        ctx.acknowledge && ctx.acknowledge()
+        ctx.acknowledge && ctx.acknowledge(new SuccessModel())
+      } else {
+        ctx.acknowledge && ctx.acknowledge(new ErrorModel(socketSendchatMegFailInfo))
       }
     } catch (error) {
       console.error(error);
@@ -50,11 +67,22 @@ module.exports = {
   async addFriend(ctx, data = {}) {
     try {
       if (data.friendId) {
+        let roomId = `userId_${data.friendId}`,
+          event = 'getAddFriend'
 
         data.msg = '有人请求添加你为好友'
         data.friendInfo = ctx.userInfo
 
-        ctx.socket.to(`userId_${data.friendId}`).emit('getAddFriend', new SuccessModel(data));
+        // 将数据添加到数据库中 因为不确定是不是发送成功
+        let res = await createSocketData({
+          userId: data.friendId,
+          roomId,
+          data,
+          event
+        })
+
+        // 返回消息给客户端
+        ctx.socket.to(roomId).emit(event, new SuccessModel(data));
 
         // 数据成功到达执行ctx.acknowledge函数
         ctx.acknowledge && ctx.acknowledge()
@@ -62,5 +90,21 @@ module.exports = {
     } catch (error) {
       console.error(error);
     }
-  }
+  },
+
+  // 客户端是否成功接收数据
+  async getSuccess(ctx, data) {
+    try {
+      if (typeof data === 'number') {
+
+        await delSocketData({
+          id: data,
+          userId: ctx.userInfo.id
+        })
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  },
+
 }

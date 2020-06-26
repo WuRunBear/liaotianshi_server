@@ -1,7 +1,16 @@
 const {
+  SuccessModel,
+  ErrorModel
+} = require('../model/ResModel')
+const {
   get
 } = require('../cache/redis')
 const getCookie = require('../utils/getCookie')
+const {
+  getSocketDatas,
+  createSocketData,
+  delSocketData,
+} = require('../services/sendingSocket')
 
 /**
  * 路由处理
@@ -14,13 +23,31 @@ module.exports = function (io, routes) {
 
     // 先确认redis中有无用户数据 有添加到上下文中并继续  否则return不采取操作
     let userInfo = await _getUserInfo(socket.handshake.headers.cookie)
+    let roomId = `userId_${userInfo.id}`
     if (userInfo) {
-      let roomId = `userId_${userInfo.id}`
 
       // 将连接的用户加入到redis中用户数据的对应Id房间中
       socket.join(roomId)
     }
 
+
+    // 将因离线或其他问题发送失败的数据重新发送
+    let res = await getSocketDatas(userInfo.id)
+    if (res) {
+      res.forEach(item => {
+
+        let data = JSON.parse(item.data)
+        data.socketDataId = item.id
+        socket.emit(item.event, new SuccessModel(data));
+
+      })
+    }
+
+    socket.adapter.allRooms((err, clients) => {
+      if (err) console.error(err)
+
+      // if (clients.includes(socket.id)) console.log(clients);
+    })
     return
   })
 
@@ -29,13 +56,12 @@ module.exports = function (io, routes) {
     io.on(route, routes[route]); // register event
   });
   return async (ctx, next) => {
-    // 先确认redis中有无用户数据 有添加到上下文中并继续  否则return不采取操作
+    // 先确认redis中有无用户数据  有添加到上下文中并继续  否则return不采取操作
     let userInfo = await _getUserInfo(ctx.socket.handshake.headers.cookie)
     if (userInfo) {
       ctx.userInfo = userInfo
 
       await next();
-
     }
 
     return

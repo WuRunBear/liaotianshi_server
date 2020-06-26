@@ -43,7 +43,7 @@ async function getUserInfo({
         model: friend,
         required: false,
         where: {
-          userId
+          userId,
         }
       }],
     })
@@ -51,6 +51,22 @@ async function getUserInfo({
 
   // 查询用户
   let result = await user.findOne(info)
+
+  if (userId) {
+
+    // 判断是不是互为好友
+    let is = await friend.findOne({
+      attributes: ['id'],
+      where: {
+        userId: result.dataValues.id,
+        friendId: userId
+      }
+    })
+    
+    if(!is){
+      result.dataValues.friends = []
+    }
+  }
 
   if (result) {
     return formatUser(result.dataValues)
