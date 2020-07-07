@@ -53,7 +53,6 @@ async function getUserInfo({
   let result = await user.findOne(info)
 
   if (userId) {
-
     // 判断是不是互为好友
     let is = await friend.findOne({
       attributes: ['id'],
@@ -62,9 +61,15 @@ async function getUserInfo({
         friendId: userId
       }
     })
-    
-    if(!is){
-      result.dataValues.friends = []
+
+    // 如果friends存在并且长度为1 则将数组形式转为对象形式
+    if (result.dataValues.friends.length === 1) {
+      result.dataValues.friend = result.dataValues.friends[0]
+      delete result.dataValues.friends
+    }
+
+    if (!is) {
+      delete result.dataValues.friend
     }
   }
 

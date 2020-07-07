@@ -20,10 +20,6 @@ const {
 } = require('../model/ErrorInfo')
 const doCrypto = require('../utils/crypto')
 
-const {
-  isFriend
-} = require('./friend')
-
 /**
  * 用户登录
  * @param {Object} ctx koa2 ctx
@@ -126,6 +122,8 @@ async function selectUser(ctx, {
   pageSize = 10,
   page = 0,
 }) {
+  // 搜索字段不能为空
+  if (selectText === '') return new ErrorModel(selectUserFailInfo)
 
   let isexist = await isExist(selectText)
   let isUserName = isexist.errno === 0
@@ -150,15 +148,10 @@ async function selectUser(ctx, {
       userName: selectText
     })
 
-    // 如果friends存在并且长度为1 则将数组形式转为对象形式
-    if (usersInfo.friends.length === 1) {
-      usersInfo.friends = usersInfo.friends[0]
-    }
-
     if (usersInfo) {
       return new SuccessModel(usersInfo)
     }
-
+    
   } else {
 
     // 根据昵称查询 

@@ -54,5 +54,21 @@ module.exports = {
   socketSendchatMegFailInfo: {
     type: 10012,
     message: '发送信息失败'
+  },
+  addFriendFailIsFriendInfo: {
+    type: 10013,
+    message: '已经是好友'
+  },
+  changeFriendFailInfo: {
+    errno: 10014,
+    message: '修改好友信息失败'
+  },
+  getFriendListFailInfo: {
+    errno: 10015,
+    message: '还没有好友'
+  },
+  socketAddRoomFailInfo:{
+    errno : 10016,
+    message: '加入房间失败'
   }
 }

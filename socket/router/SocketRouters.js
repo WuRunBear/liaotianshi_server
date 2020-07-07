@@ -3,7 +3,8 @@ const {
   ErrorModel
 } = require('../../model/ResModel')
 const {
-  socketSendchatMegFailInfo
+  socketSendchatMegFailInfo,
+  socketAddRoomFailInfo
 } = require('../../model/ErrorInfo')
 const {
   getSocketDatas,
@@ -12,8 +13,8 @@ const {
 } = require('../../services/sendingSocket')
 
 module.exports = {
-  async connect(socket) {},
-  async disconnect(e) {},
+  async connect(socket) { },
+  async disconnect(e) { },
   // 加入房间
   async addRoom(ctx, data = {}) {
     try {
@@ -27,12 +28,17 @@ module.exports = {
         ctx.socket.adapter.clients([roomId], (err, clients) => {
           if (err) console.error(err)
 
-          // 如果成功加入执行ctx.acknowledge
-          if (clients.includes(ctx.socket.id)) ctx.acknowledge && ctx.acknowledge()
+          // 如果成功加入执行ctx.acknowledge并传入成功的对象
+          if (clients.includes(ctx.socket.id)) {
+            ctx.acknowledge && ctx.acknowledge(new SuccessModel())
+            return
+          }
+          // 如果失败传入错误对象
+          ctx.acknowledge && ctx.acknowledge(new ErrorModel(socketAddRoomFailInfo))
         })
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   },
   // 发送聊天消息
@@ -46,6 +52,7 @@ module.exports = {
 
         // 将数据添加到数据库中 因为不确定是不是发送成功
         // let res = await createSocketData({
+        //   userId: data.friendId,
         //   roomId,
         //   data,
         //   event
@@ -53,6 +60,7 @@ module.exports = {
 
         // 返回聊天消息给客户端
         ctx.socket.broadcast.to(roomId).emit(event, new SuccessModel(data));
+
         // 数据成功到达执行ctx.acknowledge函数
         ctx.acknowledge && ctx.acknowledge(new SuccessModel())
       } else {
@@ -81,11 +89,15 @@ module.exports = {
           event
         })
 
-        // 返回消息给客户端
-        ctx.socket.to(roomId).emit(event, new SuccessModel(data));
+        // 如果成功存到数据库中
+        if (res) {
+          data.socketDataId = res.id
+          // 返回消息给客户端
+          ctx.socket.to(roomId).emit(event, new SuccessModel(data));
 
-        // 数据成功到达执行ctx.acknowledge函数
-        ctx.acknowledge && ctx.acknowledge()
+          // 数据成功到达执行ctx.acknowledge函数
+          ctx.acknowledge && ctx.acknowledge()
+        }
       }
     } catch (error) {
       console.error(error);

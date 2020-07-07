@@ -58,7 +58,7 @@ app.use(koaBody({
       checkDirExist(dir)
 
       let fileNameArr = file.name.split('.')
-      let fileName = `${dirName.fileName}.${fileNameArr[fileNameArr.length-1]}`
+      let fileName = `${dirName.fileName}.${fileNameArr[fileNameArr.length - 1]}`
 
       dir = path.join(dir, fileName)
 

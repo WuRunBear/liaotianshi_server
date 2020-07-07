@@ -1,7 +1,8 @@
 const {
   getFriend,
   getFriends,
-  createFriend
+  createFriend,
+  updateFriend
 } = require('../services/friend')
 const {
   SuccessModel,
@@ -9,7 +10,10 @@ const {
 } = require('../model/ResModel')
 const {
   isFriendFailInfo,
-  addFriendFailInfo
+  addFriendFailInfo,
+  addFriendFailIsFriendInfo,
+  changeFriendFailInfo,
+  getFriendListFailInfo
 } = require('../model/ErrorInfo')
 
 /**
@@ -25,8 +29,13 @@ async function isFriend(ctx, {
     friendId
   })
 
-  if (res) {
-    return new SuccessModel(res)
+  let res2 = await getFriend({
+    userId: friendId,
+    friendId: ctx.session.userInfo.id
+  })
+
+  if (res && res2) {
+    return new SuccessModel()
   }
 
   return new ErrorModel(isFriendFailInfo)
@@ -44,6 +53,15 @@ async function addFriend(ctx, {
   alias,
   blackList = false
 }) {
+
+  let isfriend = await isFriend(ctx, {
+    friendId
+  })
+
+  if (isfriend.errno === 0) {
+    return new ErrorModel(addFriendFailIsFriendInfo)
+  }
+
   let res = await createFriend({
     userId: ctx.session.userInfo.id,
     friendId,
@@ -52,12 +70,16 @@ async function addFriend(ctx, {
   })
 
   if (res) {
-    return new SuccessModel(res)
+    return new SuccessModel()
   }
   return new ErrorModel(addFriendFailInfo)
 }
 
-async function getFriendList(ctx){
+/**
+ * 获取当前账号好友列表
+ * @param {Object} ctx koa ctx
+ */
+async function getFriendList(ctx) {
   let res = await getFriends({
     userId: ctx.session.userInfo.id,
   })
@@ -66,11 +88,35 @@ async function getFriendList(ctx){
     return new SuccessModel(res)
   }
 
-  return new ErrorModel(isFriendFailInfo)
+  return new ErrorModel(getFriendListFailInfo)
+}
+
+/**
+ * 修改信息
+ * @param {Object} ctx koa ctx
+ * @param {Number} friendId 好友ID
+ */
+async function changeFriendInfo(ctx, {
+  friendId,
+  alias,
+  blackList = false
+}) {
+  let res = await updateFriend({
+    userId: ctx.session.userInfo.id,
+    friendId,
+    alias,
+    blackList
+  })
+
+  if (res) {
+    return new SuccessModel()
+  }
+  return new ErrorModel(changeFriendFailInfo)
 }
 
 module.exports = {
   isFriend,
   addFriend,
-  getFriendList
+  getFriendList,
+  changeFriendInfo
 }

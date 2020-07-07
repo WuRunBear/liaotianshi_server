@@ -62,7 +62,7 @@ async function getFriends({
     limit,
     offset,
     include: [{
-      attributes: ['id', 'userName', 'nickName', 'avatar', 'gender', 'city'],
+      attributes: ['id', 'userName', 'nickName', 'avatar',],
       model: user,
     }],
     where
@@ -89,14 +89,13 @@ async function createFriend({
   alias,
   blackList = false
 }) {
+  if (typeof friendId !== 'number') return
 
   let isFriend = await getFriend({
     userId,
     friendId
   })
   if (isFriend) return
-
-  if (typeof friendId !== 'number') return
 
   let result = await friend.create({
     userId,
@@ -111,8 +110,52 @@ async function createFriend({
   return
 }
 
+/**
+ * 修改信息
+ * @param {Number} userId 用户id
+ * @param {Number} friendId 好友id
+ * @param {String} alias 备注  可选
+ * @param {Boolean} blackList 黑名单  可选  默认为false
+ * @returns {Boolean} 返回布尔型
+ */
+async function updateFriend({
+  userId,
+  friendId,
+  alias,
+  blackList = false
+}) {
+
+  if (typeof friendId !== 'number') return
+
+  // 验证是否为好友
+  let isFriend = await getFriend({
+    userId,
+    friendId
+  })
+  if (!isFriend) return
+
+  // 要更新的数据和条件
+  let updateData = {}, where = {
+    userId,
+    friendId
+  }
+
+  if (alias) updateData.alias = alias
+  if (blackList) updateData.blackList = blackList
+
+  let result = await friend.update(updateData, {
+    where
+  })
+
+  if (result) {
+    return true
+  }
+  return
+}
+
 module.exports = {
   getFriend,
   getFriends,
-  createFriend
+  createFriend,
+  updateFriend
 }
