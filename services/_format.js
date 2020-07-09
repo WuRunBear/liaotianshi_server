@@ -12,7 +12,7 @@ const {
 function _formatUserAvatar(obj) {
   if (!obj.avatar) {
     obj.avatar = `${urlStaticResource}images/avatar.png`
-  }else{
+  } else {
     obj.avatar = `${urlStaticResource}${obj.avatar}`
   }
   return obj
@@ -34,6 +34,36 @@ function formatUser(list) {
   return list
 }
 
+/**
+ * 初始化群成员
+ * @param {Object} Obj 群对象
+ */
+function _formatChatRoomMember(Obj) {
+  try {
+    Obj.member = JSON.parse(Obj.member)
+  } catch (error) {
+
+  }
+  return Obj
+}
+
+/**
+ * 初始化群对象
+ * @param {Array|Object} list 群列表或对象
+ */
+function formatChatRoom(list) {
+  if (list instanceof Array) {
+    return list.map(_formatChatRoomMember)
+  }
+
+  if (list instanceof Object) {
+    return _formatChatRoomMember(list)
+  }
+
+  return list
+}
+
 module.exports = {
-  formatUser
+  formatUser,
+  formatChatRoom
 }

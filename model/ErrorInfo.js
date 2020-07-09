@@ -67,8 +67,28 @@ module.exports = {
     errno: 10015,
     message: '还没有好友'
   },
-  socketAddRoomFailInfo:{
-    errno : 10016,
-    message: '加入房间失败'
-  }
+  socketAddRoomFailInfo: {
+    errno: 10016,
+    message: '加入聊天失败'
+  },
+  isChatRoomFailInfo: {
+    errno: 10017,
+    message: '该聊天不存在'
+  },
+  isInChatRoomFailInfo: {
+    type: 10018,
+    message: '已在该聊天'
+  },
+  addChatRoomFailInfo: {
+    type: 10019,
+    message: '加入聊天失败'
+  },
+  changeChatRoomInfoFailInfo:{
+    type: 10020,
+    message: '修改聊天信息失败'
+  },
+  createChatRoomFailInfo:{
+    type: 10021,
+    message: '新建聊天失败'
+  },
 }

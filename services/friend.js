@@ -59,6 +59,7 @@ async function getFriends({
   }
 
   let result = await friend.findAndCountAll({
+    attributes: ['id', 'userId', 'friendId', 'alias', 'blackList'],
     limit,
     offset,
     include: [{

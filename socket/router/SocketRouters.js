@@ -33,10 +33,11 @@ module.exports = {
             ctx.acknowledge && ctx.acknowledge(new SuccessModel())
             return
           }
-          // 如果失败传入错误对象
-          ctx.acknowledge && ctx.acknowledge(new ErrorModel(socketAddRoomFailInfo))
         })
       }
+
+      // 如果失败传入错误对象
+      ctx.acknowledge && ctx.acknowledge(new ErrorModel(socketAddRoomFailInfo))
     } catch (error) {
       console.error(error);
     }

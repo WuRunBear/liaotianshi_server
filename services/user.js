@@ -9,6 +9,31 @@ const {
 const Op = require('sequelize').Op
 
 /**
+ * 根据用户Id获取用户信息
+ * @param {Number} userId 用户id
+ */
+async function getUserInfoId({
+  userId,
+}) {
+  // 查询条件
+  let where = {
+    id: userId
+  }
+
+  // 查询用户
+  let result = await user.findOne({
+    attributes: ['id', 'userName', 'nickName', 'avatar', 'gender', 'city'],
+    where
+  })
+
+  if (result) {
+    return formatUser(result.dataValues)
+  }
+
+  return result
+}
+
+/**
  * 获取用户信息
  * @param {Number} userId 用户id
  * @param {String} userName 用户名
@@ -209,6 +234,7 @@ async function getUser() {
 module.exports = {
   getUserInfo,
   getUsersInfo,
+  getUserInfoId,
   createUser,
   updateUser,
   getUser

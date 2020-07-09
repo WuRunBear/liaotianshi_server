@@ -12,6 +12,7 @@ const path = require('path')
 const utils = require('./routes/utils')
 const users = require('./routes/users')
 const friends = require('./routes/friends')
+const chatRooms = require('./routes/chatRooms')
 
 const {
   getUploadDirName
@@ -118,6 +119,7 @@ app.io.use(require('./socket/socketRouter')(app.io, Object.assign({}, require('.
 app.use(utils.routes(), utils.allowedMethods())
 app.use(users.routes(), users.allowedMethods())
 app.use(friends.routes(), friends.allowedMethods())
+app.use(chatRooms.routes(), chatRooms.allowedMethods())
 
 // error-handling
 app.on('error', (err, ctx) => {
