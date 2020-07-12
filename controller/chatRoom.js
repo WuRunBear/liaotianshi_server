@@ -17,7 +17,8 @@ const {
   isChatRoomFailInfo,
   addChatRoomFailInfo,
   changeChatRoomInfoFailInfo,
-  createChatRoomFailInfo
+  createChatRoomFailInfo,
+  getOneChatRoomFailInfo
 } = require('../model/ErrorInfo')
 
 /**
@@ -61,7 +62,36 @@ async function isChatRoom({
 }
 
 /**
- * 获取与好友的聊天群号
+ * 获取聊天模式（群聊、私聊）
+ * @param {Number} roomId 群号
+ * @param {Number} friendId 好友id
+ * @returns {SuccessModel|ErrorModel} 返回成功或错误的对象
+ */
+async function getChatMode({
+  roomId,
+  friendId
+}) {
+  let res = await getChatRoom({
+    roomId,
+    friendId
+  })
+
+  // 判断是否是私聊 假为私聊 真为群聊
+  if(res.member.length > 1){
+    res.chatMode = true
+  }else{
+    res.chatMode = false
+  }
+
+  if (res) {
+    return new SuccessModel()
+  }
+
+  return new ErrorModel(isChatRoomFailInfo)
+}
+
+/**
+ * 获取与好友的聊天信息
  * @param {Object} ctx koa ctx
  * @param {Number} friendId 好友id
  * @returns {SuccessModel|ErrorModel} 返回成功或错误的对象
@@ -74,7 +104,7 @@ async function getOneToOneChat(ctx, {
     userId: ctx.session.userInfo.id,
     friendId
   })
-  // let res1
+
   // 如果是由对方发起的聊天也算
   let res2 = await getOneToOneChatRoom({
     userId: Number(friendId),
@@ -103,16 +133,16 @@ async function addChatRoom(ctx, {
   })
   if (isChatRoomRes.errno !== 0) return isChatRoomRes
 
-  // 是否已加入该群 如果已加入该群则退出
+  // 是否已加入该群 如果已加入该群则 返回错误信息
   let isInChatRoomRes = await isInChatRoom(ctx, {
     roomId
   })
   if (isInChatRoomRes.errno === 0) return isInChatRoomRes
 
-  let getChatRoomRes = await getChatRoom({
-    userId: ctx.session.userInfo.id,
-    roomId
-  })
+  // let getChatRoomRes = await getChatRoom({
+  //   userId: ctx.session.userInfo.id,
+  //   roomId
+  // })
   // getChatRoomRes.member 
 
   let res = await updateChatRoom({
@@ -148,6 +178,27 @@ async function getChatRoomList(ctx, {
   }
 
   return new ErrorModel(getFriendListFailInfo)
+}
+
+/**
+ * 通过群号获取群信息(一个群)
+ * @param {Object} ctx koa ctx
+ * @param {Number} roomId 群号
+ * @returns {SuccessModel|ErrorModel} 返回成功或错误的对象
+ */
+async function getOneChatRoom(ctx, {
+  roomId
+}) {
+  let res = await getChatRoom({
+    userId: ctx.session.userInfo.id,
+    roomId
+  })
+
+  if (res) {
+    return new SuccessModel(res)
+  }
+
+  return new ErrorModel(getOneChatRoomFailInfo)
 }
 
 /**
@@ -188,7 +239,7 @@ async function changeChatRoomInfo(ctx, {
  * @param {String} roomName 群名称
  * @param {String} avatar 群头像
  */
-async function newOneToManyChatRoom(ctx, {
+async function newChatRoom(ctx, {
   member,
   roomName,
   avatar,
@@ -196,6 +247,7 @@ async function newOneToManyChatRoom(ctx, {
   let res = await createChatRoom({
     userId: ctx.session.userInfo.id,
     masterId: ctx.session.userInfo.id,
+    member,
     roomName,
     avatar,
   })
@@ -238,11 +290,13 @@ async function newOneToOneChatRoom(ctx, {
 
 module.exports = {
   isChatRoom,
-  addChatRoom,
-  getOneToOneChat,
-  newOneToManyChatRoom,
-  newOneToOneChatRoom,
   isInChatRoom,
+  addChatRoom,
+  newChatRoom,
+  newOneToOneChatRoom,
+  getChatMode,
+  getOneChatRoom,
+  getOneToOneChat,
   getChatRoomList,
   changeChatRoomInfo,
 }

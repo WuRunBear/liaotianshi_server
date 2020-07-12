@@ -30,16 +30,26 @@ module.exports = {
 
           // 如果成功加入执行ctx.acknowledge并传入成功的对象
           if (clients.includes(ctx.socket.id)) {
+            
             ctx.acknowledge && ctx.acknowledge(new SuccessModel())
+
+            return
+          } else {
+            // 如果失败传入错误对象
+            ctx.acknowledge && ctx.acknowledge(new ErrorModel(socketAddRoomFailInfo))
+
             return
           }
         })
+      } else {
+        // 如果失败传入错误对象
+        ctx.acknowledge && ctx.acknowledge(new ErrorModel(socketAddRoomFailInfo))
       }
 
-      // 如果失败传入错误对象
-      ctx.acknowledge && ctx.acknowledge(new ErrorModel(socketAddRoomFailInfo))
     } catch (error) {
       console.error(error);
+      // 如果失败传入错误对象
+      ctx.acknowledge && ctx.acknowledge(new ErrorModel(socketAddRoomFailInfo))
     }
   },
   // 发送聊天消息
@@ -50,15 +60,20 @@ module.exports = {
           event = 'getChatMsg'
 
         data.userId = ctx.userInfo.id
-
+console.log({
+  userId: data.friendId,
+  roomId,
+  data,
+  event
+});
         // 将数据添加到数据库中 因为不确定是不是发送成功
-        // let res = await createSocketData({
-        //   userId: data.friendId,
-        //   roomId,
-        //   data,
-        //   event
-        // })
-
+        let res = await createSocketData({
+          userId: data.friendId,
+          roomId,
+          data,
+          event
+        })
+        console.log(res);
         // 返回聊天消息给客户端
         ctx.socket.broadcast.to(roomId).emit(event, new SuccessModel(data));
 

@@ -34,7 +34,13 @@ module.exports = function (io, routes) {
       if (res) {
         res.forEach(item => {
 
-          let data = JSON.parse(item.data)
+          // 将字符串转换成对像
+          let data = ''
+          try {
+            data = JSON.parse(item.data)
+          } catch (error) {
+            data = item.data
+          }
           data.socketDataId = item.id
           socket.emit(item.event, new SuccessModel(data));
 

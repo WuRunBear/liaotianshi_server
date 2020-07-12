@@ -91,4 +91,8 @@ module.exports = {
     type: 10021,
     message: '新建聊天失败'
   },
+  getOneChatRoomFailInfo:{
+    type: 10022,
+    message: '获取聊天信息失败'
+  },
 }

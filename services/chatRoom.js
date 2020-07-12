@@ -8,12 +8,14 @@ const { formatChatRoom } = require('./_format')
 /**
  * 获取一个用户加入的聊天室
  * @param {Number} userId 用户id
+ * @param {Number} friendId 好友id
  * @param {Number} roomId 群号
  * @returns {Object|null} 返回数据或空
  */
 async function getChatRoom({
   userId,
-  roomId
+  roomId,
+  friendId
 }) {
   // 如果userId不是数值类型就返回
   if (typeof userId !== 'number') return
@@ -25,11 +27,28 @@ async function getChatRoom({
   // 如果userId 存在就添加
   if (userId) {
     Object.assign(where, {
-      [Op.and]: {
-        member: {
-          [Op.like]: `%,${userId}%`
+      [Op.or]: [
+        {
+          member: {
+            [Op.like]: `%,${userId}%`
+          },
+        },
+        {
+          member: {
+            [Op.like]: `%[${userId}`
+          },
+        },
+        {
+          member: {
+            [Op.like]: `${userId}]%`
+          },
+        },
+        {
+          member: {
+            [Op.like]: `%${friendId}%`
+          },
         }
-      }
+      ]
     })
   }
 
@@ -61,9 +80,23 @@ async function getChatRooms({
   if (typeof userId !== 'number') return
 
   let where = {
-    [Op.like]: {
-      member: `%,${userId},%`
-    }
+    [Op.or]: [
+      {
+        member: {
+          [Op.like]: `%,${userId}%`
+        },
+      },
+      {
+        member: {
+          [Op.like]: `%[${userId}`
+        },
+      },
+      {
+        member: {
+          [Op.like]: `${userId}]%`
+        },
+      }
+    ]
   }
 
   let result = await chatRoom.findAndCountAll({
@@ -81,7 +114,7 @@ async function getChatRooms({
 }
 
 /**
- * 获取用户与好友的一对一聊天室
+ * 获取私聊
  * @param {Number} userId 用户id
  * @param {Number} friendId 好友账号
  * @returns {Object|null} 返回数据或空
@@ -100,14 +133,14 @@ async function getOneToOneChatRoom({
   // 如果userId 存在就添加
   if (userId) {
     Object.assign(where, {
-      member: {
-        [Op.like]: friendId.toString()
+      friendId: {
+        [Op.like]: `%${friendId}%`
       }
     })
   }
 
   let result = await chatRoom.findOne({
-    attributes: ['id', 'userId', 'roomId'],
+    attributes: ['id', 'userId', 'roomId', 'roomId'],
     where
   })
 
@@ -119,18 +152,16 @@ async function getOneToOneChatRoom({
 }
 
 /**
- * 创建聊天室
+ * 创建私聊
  * @param {Number} userId 用户id
- * @param {String} friendId 好友账号
+ * @param {Number} friendId 好友id
  * @returns {Object|null} 返回数据或空
  */
 async function createOneToOneChatRoom({
   userId,
   friendId
 }) {
-  console.log(friendId);
-  
-  let roomId = _getRoomId(), member = friendId.toString()
+  let roomId = _getRoomId()
   // 如果userId不是数值类型就返回
   if (typeof userId !== 'number') return
 
@@ -138,7 +169,7 @@ async function createOneToOneChatRoom({
   let result = await chatRoom.create({
     userId,
     roomId,
-    member
+    member: friendId.toString()
   })
 
   if (result) {
@@ -148,9 +179,8 @@ async function createOneToOneChatRoom({
   return
 }
 
-
 /**
- * 创建聊天室
+ * 创建群聊
  * @param {Number} userId 用户id
  * @param {Number} masterId 群主Id
  * @param {String} roomName 群名称
@@ -160,13 +190,13 @@ async function createOneToOneChatRoom({
 async function createChatRoom({
   userId,
   masterId,
+  member,
   avatar,
   roomName = '',
 }) {
-  let roomId = _getRoomId(), member = `[${userId}]`
+  let roomId = _getRoomId() //, member = `[${userId}]`
   // 如果userId不是数值类型就返回
   if (typeof userId !== 'number') return
-
 
   // 创建房间
   let result = await chatRoom.create({
@@ -217,7 +247,7 @@ async function updateChatRoom({
   }
 
   // 要更新的数据和条件
-  let updateData = {}, where = {
+  let updateData = { friendId: null }, where = {
     roomId,
     [Op.and]: {
       [Op.like]: {

@@ -12,7 +12,7 @@ let chatRoom = seq.define('chatRoom', {
   // friendId: {
   //   type:Sequelize.INTEGER,
   //   allowNull: false,
-  //   comment: ''
+  //   comment: '私聊的好友id'
   // },
   // 群号
   roomId: {
@@ -30,7 +30,7 @@ let chatRoom = seq.define('chatRoom', {
   // 成员
   member: {
     type: Sequelize.STRING,
-    comment: '成员，数组形式'
+    comment: '群聊成员，数组形式'
   },
   // 群名称
   roomName: {

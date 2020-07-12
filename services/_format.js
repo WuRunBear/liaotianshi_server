@@ -42,7 +42,6 @@ function _formatChatRoomMember(Obj) {
   try {
     Obj.member = JSON.parse(Obj.member)
   } catch (error) {
-
   }
   return Obj
 }

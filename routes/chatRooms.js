@@ -3,7 +3,10 @@ const {
   isInChatRoom,
   isChatRoom,
   addChatRoom,
+  getChatMode,
   getChatRoomList,
+  getOneChatRoom,
+  newChatRoom,
   getOneToOneChat,
   newOneToOneChatRoom
 } = require('../controller/chatRoom')
@@ -12,7 +15,7 @@ const {
   loginCheck
 } = require('../middlewares/middleware.js')
 
-router.prefix('/api/chatRoom')
+router.prefix('/api/chatRooms')
 
 // 群是否存在
 router.get('/isChatRoom', loginCheck, async (ctx, next) => {
@@ -25,6 +28,14 @@ router.get('/isChatRoom', loginCheck, async (ctx, next) => {
 router.get('/isInChatRoom', loginCheck, async (ctx, next) => {
 
   let data = await isInChatRoom(ctx, ctx.query)
+
+  ctx.body = data
+})
+
+// 获取聊天模式（群聊、私聊）
+router.get('/getChatMode', loginCheck, async (ctx, next) => {
+
+  let data = await getChatMode(ctx, ctx.query)
 
   ctx.body = data
 })
@@ -57,13 +68,13 @@ router.post('/getOneToOneChat', loginCheck, async (ctx, next) => {
   ctx.body = data
 })
 
-// // 删除好友
-// router.post('/removeFriend', loginCheck, async (ctx, next) => {
+// 通过群号获取群信息
+router.post('/getChatRoom', loginCheck, async (ctx, next) => {
 
-//   // let data = await addFriend(ctx, ctx.request.body)
+  let data = await getOneChatRoom(ctx, ctx.request.body)
 
-//   ctx.body = '删除好友'
-// })
+  ctx.body = data
+})
 
 // // 修改信息
 // router.post('/changeFriendInfo', loginCheck, async (ctx, next) => {
